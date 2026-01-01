@@ -1,16 +1,30 @@
 <!DOCTYPE html>
 <html lang="ru">
     <head>
-        <title></title>
+        <title>Вход</title>
+        <script src="https://telegram.org/js/telegram-web-app.js"></script>
+        <script>
+            window.addEventListener("DOMContentLoaded", () => {
+                const init_data = window.WebApp.initData;
+            }); 
+        </script>
     </head>
     <body>
         <div class="1">
             <div class="login_windows">
-                <button id="btn_login_tg">Войти через Telegram</button>
+                <button id="btn_login_tg">Войти через Telegram</button><br>
+                <h1>Вход по почте</h1>
                 <input placeholder="Введите почту">
                 <button id="btn_login_mail">Войти</button>
-                
             </div>
         </div>
+        <script>
+            document.getElementById('btn_login_tg').addEventListener("click", () => {
+                alert('Кнопка 1');
+            });
+            document.getElementById('btn_login_mail').addEventListener("click", () => {
+                alert('Кнопка 2');
+            });
+        </script>
     </body>
 </html>
