@@ -1,0 +1,46 @@
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual Enviroments
+venv/
+env/
+ENV/
+
+# Enviroment Variables
+.env
+.env.local
+.env.*.local
+
+# IDE/Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+.vscode-test/
+
+# OS Files
+.DS_Store
+.DS_Store?
+_SV*
+Thumbs.db
+ehthumbs.db
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+Pipfile.lock
+
+# Dist/ Build
+dist/
+build/
+*.egg-info/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
