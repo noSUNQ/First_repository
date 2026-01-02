@@ -8,7 +8,11 @@
                 const init_data = window.WebApp.initData;
                 document.getElementById('btn_login_tg').addEventListener("click", () => {
                 alert('Кнопка 1');
-                fetch
+                fetch ("/home" , {
+                    method: "POST",
+                    headers: "",
+                    body: JSON.stringify{init_data}
+                })
                 });
             }); 
         </script>
