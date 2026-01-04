@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+    <head>
+        <title>Главная</title>
+        <script></script>
+        <style></style>
+    </head>
+    <body>
+        <button>Задать вопрос</button><br>
+        <button id="btnCreateTables">Создать таблицы</button><br>
+        <button>Удалить таблицы</button><br>
+        <button>Все вопросы</button><br>
+        <button id="people">Все пользователи</button><br>
+        <form action="/add_person">
+            <input type="text" placeholder="Имя">
+        </form>
+    </body>
+    <script>
+        document.getElementById("btnCreateTables").addEventListener('click', () => {
+
+            fetch("/create_tables", {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"}
+            })
+
+            .then(res => {
+                if (!res.ok) {
+                    throw new Error(`Ошибка: ${res.status}`);
+                }
+                return res.json();
+            })
+
+            .then(data => {
+                console.log('Ответ:', data);
+            })
+            
+            .catch(error => console.error('Ошибка', error));
+        })
+    </script>
+</html>

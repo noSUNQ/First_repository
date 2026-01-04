@@ -4,3 +4,5 @@
 git add <file>
 git commit -m "Примечание"
 git push 
+
+ngrok http 127.0.0.1:5000

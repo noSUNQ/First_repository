@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html lang="ru">
     <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script></script>
         <title>Вход</title>
-        <script src="https://telegram.org/js/telegram-web-app.js"></script>
-        <script>
-            window.addEventListener("DOMContentLoaded", () => {
-                const init_data = window.WebApp.initData;
-                document.getElementById('btn_login_tg').addEventListener("click", () => {
-                alert('Кнопка 1');
-                fetch ("/home" , {
-                    method: "POST",
-                    headers: "",
-                    body: JSON.stringify{init_data}
-                })
-                });
-            }); 
-        </script>
+        <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     </head>
     <body>
-        <div class="1">
-            <div class="login_windows">
-                <button id="btn_login_tg">Войти через Telegram</button><br>
-                <h1>Вход по почте</h1>
-                <input placeholder="Введите почту">
-                <button id="btn_login_mail">Войти</button>
+        <div class="container" id="container">
+            <div class="form-container">
+                <form>
+                    <h1>Войти в систему</h1>
+                    <input type="email" placeholder="Почта">
+                    <button>Прислать код</button>
+                    <input 
+                        type="text" 
+                        inputmode="numeric" 
+                        pattern="\d{6}"
+                        autocomplete="one-time-code"
+                        maxlength="6"
+                        size="6"
+                        id="otp"
+                        name="otp">
+                </form>
+
+                <button id="btn_admin">Админ панель</button>
+                <script>
+                    document.getElementById('btn_admin').addEventListener('click', () => {
+                        window.location.href = '/admin';
+                    });
+                </script>
+
             </div>
+
         </div>
-        <script>
-            document.getElementById('btn_login_tg').addEventListener("click", () => {
-                alert('Кнопка 1');
-            });
-            document.getElementById('btn_login_mail').addEventListener("click", () => {
-                alert('Кнопка 2');
-            });
-        </script>
     </body>
 </html>
