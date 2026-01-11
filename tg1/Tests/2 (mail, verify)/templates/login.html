@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <div id="1">
+            <form id="form">
+                <input id="user_email" type="email" required>
+                <button type="submit">Отправить код</button>
+            </form>
+            <br>
+            <form id="form2" style="visibility: hidden;">
+                <input id="otp" type="text">
+                <button type="submit">Войти</button>
+            </form>
+            <div id="status"></div>
+        </div>
+    </body>
+    <script>
+        const emailInput = document.getElementById('user_email')
+        const form2 = document.getElementById('form2')
+        const status = document.getElementById('status')
+        const otpInput = document.getElementById('otp')
+
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const email = emailInput.value.trim();
+            if (!email) return;
+            try {
+                const res = await fetch('/send', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await res.json();
+
+                if (res.ok && data.status === 'success') {
+                    form2.style.removeProperty('visibility'),
+                    status.textContent = `Код отправлен на почту ${email}`
+                } else {
+                    status.textContent = 'Ошибка отправки кода';
+                }
+            } catch (err) {
+                status.textContent = "Ошибка сети";
+            }
+        });
+        document.getElementById('form2').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            const otp = otpInput.value.trim();
+            const otp_email = emailInput.value.trim();
+            try {
+                const res = await fetch('/verify', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ otp_email, otp })
+                });
+                
+                const data = await res.json();
+
+                if (res.ok && data.status === 'success') {
+                    window.location.href = '/home';
+                } else {
+                    status.textContent = "Неверный код иди email";
+                }
+            } catch (err) {
+                status.textContent = "Ошибка сети";
+            }
+        });
+
+    </script>
+</html>

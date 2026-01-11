@@ -6,29 +6,91 @@
         <script></script>
         <title>Вход</title>
         <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+        <style>
+            #otp-container {
+                display: none;
+            }
+        </style>
     </head>
     <body>
         <div class="container" id="container">
             <div class="form-container">
                 <form>
                     <h1>Войти в систему</h1>
-                    <input type="email" placeholder="Почта">
-                    <button>Прислать код</button>
-                    <input 
-                        type="text" 
-                        inputmode="numeric" 
-                        pattern="\d{6}"
-                        autocomplete="one-time-code"
-                        maxlength="6"
-                        size="6"
-                        id="otp"
-                        name="otp">
+                    <input id="user_email" type="email" placeholder="Почта" required>
+                    <button type="button" id="btnSendCode">Прислать код</button>
+                    <div id="otp-container">
+                        <input 
+                            type="text" 
+                            inputmode="numeric" 
+                            pattern="\d{6}"
+                            autocomplete="one-time-code"
+                            maxlength="6"
+                            size="6"
+                            id="otp"
+                            name="otp">
+                        <button type="button" id="btnVerifyCode">Войти с кодом</button>
+                    </div>
                 </form>
 
                 <button id="btn_admin">Админ панель</button>
                 <script>
+                    const emailInput =  document.getElementById('user_email')
+                    const otpContainer =  document.getElementById('otp-container')
+                    const otpInput =  document.getElementById('otp')
+
                     document.getElementById('btn_admin').addEventListener('click', () => {
                         window.location.href = '/admin';
+                    });
+
+
+                    document.getElementById('btnSendCode').addEventListener('click', async () => {
+                        const email = emailInput.value.trim();
+                        if (!email) return alert('Введите email');
+                        try {
+                            const res = await fetch("/send_code", {
+                                method: 'POST',
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({email})
+                            });
+                            const data = await res.json();
+
+                            if (data.status === 'success') {
+                                otpContainer.style.display = 'block'
+                                otpInput.focus();
+                                alert('Код отправлен!');
+                            } else {
+                                alert('Ошибка: ' + data.error);
+                            }
+                        } catch (err) {
+                            alert('Ошибка сети: ' + err);
+                        }   
+                    });
+
+                    document.getElementById('btnVerifyCode').addEventListener('click', async () => {
+                        const email = emailInput.value.trim();
+                        const otp = otpInput.value.trim();
+                        if (!otp || otp.length !== 6) return alert('Введите 6-значный код');
+
+                        try {
+                            const res = await fetch("/verify_code", {
+                                method: 'POST',
+                                headers: {"Content-Type": "application/json"},
+                                body: JSON.stringify({email, otp})
+                            });
+                            const data = await res.json();
+
+                            if (data.status === 'success') {
+                                alert('Вход успешен!');
+                                // window.location.href = '/home';
+                            } else {
+                                alert('Ошибка: ' + data.error);
+                                otpInput.value = '';
+                                otpInput.focus();
+                            }
+                        } catch (err) {
+                            alert('Ошибка сет:? ' + err);
+                        } 
                     });
                 </script>
 

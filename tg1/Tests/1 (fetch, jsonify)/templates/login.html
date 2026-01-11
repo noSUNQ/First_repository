@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            body{
+                background-color: darkgrey;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            form{
+                background-color: rgb(85, 52, 52);
+                width: 500px;
+                min-height: 50vh;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="1">
+            <form id="form">
+                <input id="user_email" type="email" required>
+                <button type="submit">Отправить код</button>
+            </form>
+            <form id="form2" style="display: none;">
+                <input id="otp" type="number">
+                <button type="submit">Войти</button>
+            </form>
+            <div id="status"></div>
+        </div>
+    </body>
+    <script>
+        document.getElementById('form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById('user_email');
+            const userEmail = emailInput.value.trim();
+            const status = document.getElementById('status');
+
+            status.textContent = 'Отправка...';
+
+            try {
+                const res = await fetch("/send_code", {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ user_email: userEmail})
+                });
+
+                document.getElementById('form').style.display = 'none';
+                document.getElementById('form2').style.removeProperty('display');
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    status.textContent = `${data.message} (${data.email})`;
+                } else {
+                    status.textContent = `${data.error}`;
+                }
+            } catch (err) {
+                status.textContent = `Ошибка сети: ${err.message}`;
+            }
+        });
+    </script>
+</html>

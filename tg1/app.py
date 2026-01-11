@@ -7,8 +7,12 @@ from datetime import datetime
 import os
 #import hmac
 #import hashlib
+from admin.admin import admin
 
+from flask_mail import Mail, Message
 
+import secrets
+import time
 
 
 # env
@@ -18,6 +22,9 @@ KEY = os.getenv('KEY')
 
 app = Flask(__name__)
 
+# Blueprint
+app.register_blueprint(admin, url_prefix='/admin')
+
 # SQLAlchemy
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///data.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False # Убрать ошибку
@@ -25,6 +32,15 @@ db = SQLAlchemy(app)
 
 # Session
 app.secret_key = KEY
+
+# Mail
+app.config['MAIL_SERVER']='smtp.gmail.com'
+app.config['MAIL_PORT']= 587 #465
+app.config['MAIL_USERNAME'] = os.getenv('EMAIL')
+app.config['MAIL_PASSWORD'] = os.getenv('PASSWORD')
+app.config['MAIL_USE_TLS'] = True
+app.config['MAIL_USE_SSL'] = False #True for 465
+mail = Mail(app)
 
 # Integer String(size) Text DateTime Float Boolean LargeBinary 
 class Users(db.Model):
@@ -67,6 +83,11 @@ def create_tables():
     with app.app_context():
         db.create_all()
     return jsonify({"status": "tables created"})
+
+@app.route("/drop_tables")
+def drop_tables():
+    with app.app_context():
+        db.drop_all()
         
 @app.route("/add_person", methods=["POST"])
 def add_person():
@@ -85,6 +106,72 @@ def add_person():
         db.session.rollback()
         print("Ошибка добавления в БД")
         return jsonify({"status": "error"}), 400
+
+'''    
+@app.route("/send_cod", methods=["POST"])
+def send_cod():
+    try:
+        name = "Vadim"
+        email = os.getenv('EMAIL2')
+        subject = "Subject"
+        message = "this is message"
+        msg = Message(subject, sender = os.getenv('EMAIL'), recipients = [email])
+        msg.body = ('Hello ' + name + ",\n\n" + message)
+        mail.send(msg)
+        return jsonify({"status": "success"}), 200
+    except Exception as e:
+        print(f"Mail error: {e}") # Для логов
+        return jsonify({"error": str(e)}), 500
+'''
+    
+@app.post("/send_code")
+def send_code():
+    try:
+        data = request.json
+        user_email = data.get('email')
+        if not user_email:
+            return jsonify({"error": "Email required"}), 400
+        
+        otp = f"{secrets.randbelow(1000000):06d}"
+
+        session['otp'] = otp
+        session['otp_email'] = user_email
+        session['otp_time'] = time.time()
+
+        subject = "Код входа в ЭЖВ"
+        message = f"Ваш 6-значный код для входа: {otp}\n\nКод действителен 5 минут"
+
+        msg = Message(subject, sender=os.getenv('EMAIL'), recipients=[user_email])
+        msg.body = message
+        mail.send(msg)
+
+        return jsonify({"status": "success", "message": "Код отправлен"}), 200
+    except Exception as e:
+        print(f"Mail error: {e}")
+        return jsonify({"error": str(e)}), 500
+    
+@app.post("/verify_code")
+def verify_code():
+    try:
+        data = request.json
+        user_email = data.get('email')
+        user_otp = data.get('otp')
+
+        if session.get('otp_email') != user_email or session.get('otp') != user_otp:
+            return jsonify({"error": "Неверный код"}), 400
+        
+        if time.time() - session.get('otp_time', 0) > 300:
+            return jsonify({"error": "Код истек"}), 400
+        
+        session.pop('otp', None)
+        session.pop('otp_email', None)
+        session.pop('otp_time', None)
+        session['logged_in'] = True
+
+        return jsonify({"status": "success", "message": "Вход успешен"}), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

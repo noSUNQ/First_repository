@@ -2,6 +2,7 @@
 Мой первый репозиторий созданный в рамках курса cs50 Web
 
 git add <file>
+git add .
 git commit -m "Примечание"
 git push 
 

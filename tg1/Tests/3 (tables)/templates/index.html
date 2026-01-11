@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Таблицы</title>
+    </head>
+    <body>
+        <div>
+            <h1>Session</h1>
+            <input id="email_session" name="email_session" placeholder="email">
+            <div id="status"></div>
+        </div>
+
+        <div>
+            <h1>Таблицы</h1>
+            <button id="btnCreateTables">Создать Таблицы</button>
+            <button id="btnDeleteTables">Удалить Таблицы</button>
+        </div>
+
+        <div>
+            <h1>Пользователи</h1>
+            <input id="email" name="email" placeholder="email">
+            <input id="role" name="role" placeholder="role">
+            <button id="btnAddUser">Добавить пользователя</button>
+        </div>
+
+        <div>
+            <h1>Чаты</h1>
+            <button id="to_chats">Все чаты</button>
+            <input id="name" name="name" placeholder="name">
+            <input id="status_chat" name="status_chat" placeholder="status_chat">
+            <button id="btnAddChat">Добавить Чат</button>
+        </div>
+
+        <div>
+            <h1>Сообщение</h1>
+            <input id="chats_id" name="chats_id" placeholder="chat">
+            <input id="text" name="text" placeholder="text">
+            <button id="btnAddMessage">Добавить Сообщение</button>
+        </div>
+        
+    </body>
+    <script>
+        const showStatus = (msg) => {
+            document.getElementById('status').innerHTML = `<strong>${msg}</strong>`;
+            setTimeout(() => document.getElementById('status').innerHTML = '', 5000)
+        };
+
+        document.getElementById('btnCreateTables').addEventListener('click',  () => {
+            fetch('/create_tables', {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"}
+            })
+            .then(res => res.json())
+            .then(data => showStatus(data.status))
+            .catch(err => showStatus('Ошибка: ' + err));
+        });
+
+        document.getElementById('btnDeleteTables').addEventListener('click',  () => {
+            fetch('/drop_tables', {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"}
+            })
+            .then(res => res.json())
+            .then(data => showStatus(data.status))
+            .catch(err => showStatus('Ошибка: ' + err));
+        });
+
+        document.getElementById('btnAddUser').addEventListener('click',  () => {
+            const email = document.getElementById('email').value;
+            const role = document.getElementById('role').value;
+            if (!email || !role) return showStatus('Заполните все поля');
+
+            fetch('/add_user', {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ email, role })
+            })
+            .then(res => res.json())
+            .then(data => showStatus(data.status))
+            .catch(err => showStatus('Ошибка: ' + err));
+        });
+
+        document.getElementById('to_chats').addEventListener('click', () => {
+            window.location.href = '/chats';
+        })
+
+        document.getElementById('btnAddChat').addEventListener('click',  () => {
+            const name = document.getElementById('name').value;
+            const status = document.getElementById('status_chat').value;
+            const email_session = document.getElementById('email_session').value;
+            if (!email_session || !name || !status) return showStatus('Заполните все поля1');
+
+            fetch('/add_chat', {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ name, status, email_session })
+            })
+            .then(res => res.json())
+            .then(data => {
+                showStatus(data.status);
+                document.getElementById('name').value = '';
+                document.getElementById('status_chat').value = '';
+            })
+            .catch(err => showStatus('Ошибка: ' + err));
+        });
+
+        document.getElementById('btnAddMessage').addEventListener('click',  () => {
+            const email_session = document.getElementById('email_session').value;
+            const chats_id = document.getElementById('chats_id').value;
+            const text = document.getElementById('text').value;
+            if (!email_session || !chats_id || !text) return showStatus('Заполните все поля');
+
+            fetch('/add_message', {
+                method: 'POST',
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ email_session, chats_id, text })
+            })
+            .then(res => res.json())
+            .then(data => {
+                showStatus(data.status);
+                document.getElementById('text').value = '';
+                document.getElementById('chats_id').value = '';
+            })
+            .catch(err => showStatus('Ошибка: ' + err));
+        });
+
+    </script>
+</html>

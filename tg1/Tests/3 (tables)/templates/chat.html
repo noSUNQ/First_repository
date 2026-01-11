@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Чат #{{ chat.id }}</title>
+    </head>
+    <body>
+        ID #{{ chat.id }}. Status: {{ chat.status }}. <br>
+                    Name: {{ chat.name }}. User_id: {{ chat.user_id }}
+
+        <form id="msg_form">
+            <label for="media">&#128206</label>
+            <input id="media" accept="image/*,video/*" name="media" style="display: none;" type="file">
+            <input id="text" name="text" placeholder="Сообщение" type="text" autocomplete="off">
+            <input type="hidden" name="chat_id" value="{{ chat.id }}">
+        </form>
+    </body>
+    <script>
+        const form = document.getElementById('msg_form');
+        const text = document.getElementById('text');
+
+        msg_form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            msg_text = text.value.trim();
+            const formData = new FormData(form)
+
+            if (!msg_text) return;
+
+            try {
+                const res = await fetch("/send_msg", {
+                    method: 'POST',
+                    body: formData
+                });
+                if (res.ok) {
+                    text.value = '';
+                    document.getElementById('media').value = '';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        });
+    </script>
+</html>
