@@ -13,8 +13,16 @@
             <label for="media">&#128206</label>
             <input id="media" accept="image/*,video/*" name="media" style="display: none;" type="file">
             <input id="text" name="text" placeholder="Сообщение" type="text" autocomplete="off">
+            <textarea id="text" name="text" placeholder="Сообщение"></textarea>
             <input type="hidden" name="chat_id" value="{{ chat.id }}">
         </form>
+        <div class="msgs">
+            {{ for msg in msgs }}
+                <li>
+
+                </li>
+            {{ endfor }}
+        </div>
     </body>
     <script>
         const form = document.getElementById('msg_form');

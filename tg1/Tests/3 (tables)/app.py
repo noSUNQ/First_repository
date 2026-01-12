@@ -42,6 +42,7 @@ class Chats(db.Model):
     def __repr__(self):
         return f"<chats {self.id}>"
 
+# add data
 class Messages(db.Model):
     __tablename__ = 'messages'
     id = db.Column(db.Integer, primary_key=True)
