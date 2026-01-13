@@ -1,0 +1,30 @@
+# Virtualenv
+venv/
+env/
+.venv/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environment variiables
+.env
+.flaskenv
+instance/
+
+# Tests/Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Builds/Packages
+dist/
+build/
+*.egg-info/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+.DS_Store
