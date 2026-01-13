@@ -1,6 +1,6 @@
 from flask import Flask, redirect, render_template, jsonify, request, url_for, session
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime
+from datetime import datetime, timezone
 
 
 
@@ -42,11 +42,11 @@ class Chats(db.Model):
     def __repr__(self):
         return f"<chats {self.id}>"
 
-# add data
 class Messages(db.Model):
     __tablename__ = 'messages'
     id = db.Column(db.Integer, primary_key=True)
     text = db.Column(db.String(500))
+    date = db.Column(db.DateTime, default=lambda: datetime.now(timezone.utc), nullable=False)
     
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'))
     chat_id = db.Column(db.Integer, db.ForeignKey('chats.id'))
@@ -92,7 +92,8 @@ def chats():
 @app.route("/chat/<int:chat_id>")
 def chat_detail(chat_id):
     chat = Chats.query.get(chat_id)
-    return render_template("chat.html", chat=chat)
+    msgs = Messages.query.filter_by(chat_id=chat_id).order_by(Messages.id.desc()).all() 
+    return render_template("chat.html", chat=chat, msgs=msgs)
     
 @app.route("/create_tables", methods={"POST"})
 def create_tables():

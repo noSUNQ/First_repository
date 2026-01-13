@@ -11,10 +11,22 @@ git push
 ngrok http 127.0.0.1:5000
 
 # requirements
-pip freeze > requirements.txt       #Фиксирует все пакеты из вирт среды
+pip freeze > requirements.txt   #Фиксирует все пакеты из вирт среды
 pip install -r requirements.txt #Установка библиотек
 
 # venv
-python -m venv папка #Создание
-папка\Scripts\activate #Активация
-edactivate #Деактивация
+cd tg1
+python -m venv venv #Создание
+
+venv\Scripts\activate #Активация (Windows)
+source venv/bin/activate #Активация (Linux)
+
+deactivate #Деактивация
+
+# Migrations
+flask db init # Создаст migrations/
+flask db migrate -m "Add Chat model" # Генерирует скрипт изменений
+flask db upgrade # Применить
+
+flask db downgrade # Откат
+flask db show # Список миграций
