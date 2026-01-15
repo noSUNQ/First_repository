@@ -1,0 +1,99 @@
+<!-- project/app/auth/templates/auth/index.html -->
+<!DOCTYPE>
+<html lang="ru">
+    <head>
+        <link href="{{ url_for('auth.static', filename='css/styles.css') }}" rel="stylesheet" />
+        <title>Вход</title>
+    </head>
+    <body>
+        <h1>Войти в систему</h1>
+        <div id="status"></div>
+        <button id="btnLoginEmail">Войти по почте</button>
+        <button id="btnLoginTg">Войти через Telegram</button>
+
+        <div id="divEmail">
+            <form id="formEmail">
+                <input id="inputEmail" type="email" placeholder="Почта" required>
+                <button id="btnEmail" type="submit">Отправить код</button>
+            </form>
+            <form id="formOtp" style="display: none;">
+                <input id="inputOtp"
+                    name="otp"
+                    type="text" 
+                    inputmode="numeric"
+                    pattern="\d{6}"
+                    autocomplete="one-time-code"
+                    maxlength="6"
+                    size="6">
+                <button id="btnOtp" type="submit">Войти</button>
+            </form>
+        </div>
+
+        <script>
+            const btnTg = document.getElementById('btnLoginTg')
+
+            const status = document.getElementById('status')
+
+            const formEmail = document.getElementById('formEmail');
+            const formOtp = document.getElementById('formOtp');
+
+            const inputEmail = document.getElementById('inputEmail');    
+            const inputOtp = document.getElementById('inputOtp');
+
+            const showStatus = (msg, color = 'black') => {
+                status.innerHTML = `<strong style="color:${color}">${msg}</strong>`;
+                setTimeout(() => status.innerHTML = '', 10000)
+            };
+
+            document.getElementById('formEmail').addEventListener('submit', async (e) => {
+                e.preventDefault();
+
+                const valueEmail = inputEmail.value.trim();
+                if (!valueEmail) return;
+
+                try {
+                    const res = await fetch('/send_otp', {
+                        method: 'POST',
+                        headers: {"Content-Type": "application/json"},
+                        body: JSON.stringify({ valueEmail: valueEmail })
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        showStatus(data.status, data.color)
+                        if (data.status === 'success') {
+                            //inputEmail.ReadOnly = true;
+                            //formEmail.style.display = 'none';
+                            formOtp.style.removeProperty('display');
+                            inputOtp.focus();
+                        } 
+                    }
+                } catch (err) {
+                    console.error(err);
+                }
+            })
+
+
+            document.querySelector('inputOtp').addEventListener('input', async (e) => {
+                const valueOtp = e.target.value.replace(/\D/g, '');
+                const valueEmail = inputEmail.value.trim();
+                if (valueOtp.length === 6) {
+                    try {
+                        const res = await fetch('/verify', {
+                            method: 'POST',
+                            headers: {"Content-Type": "application/json"},
+                            body: JSON.stringify({ valueOtp: valueOtp, valueEmail:valueEmail })
+                        });
+                        if (res.ok) {
+                            const data = await res.json();
+                            window.location.href = '/';
+                        } else return showStatus(data.error, data.color)
+                    } catch (err) {
+                        console.error(err);
+                    }
+                } else showStatus('Введите 6 цифр', 'green' )
+            });
+
+        </script>
+    </body>
+    
+</html>

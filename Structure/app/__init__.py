@@ -1,8 +1,6 @@
-# project/app/__init__.py
 from flask import Flask
-from .extensions import db, migrate, mail
+from .extensions import db, migrate
 from config import Config
-import os
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -10,7 +8,6 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    mail.init_app(app)
 
     from .main import bp as main_bp
     app.register_blueprint(main_bp)

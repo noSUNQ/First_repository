@@ -1,4 +1,3 @@
-# project/app/models/user.py
 from app.extensions import db
 
 class User(db.Model):

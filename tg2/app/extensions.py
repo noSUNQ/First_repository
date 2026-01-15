@@ -1,5 +1,8 @@
-from flask_sqlalchemy import SQAlchemy
+# project/app/extensions.py
+from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
+from flask_mail import Mail
 
-db = SQAlchemy()
+db = SQLAlchemy()
 migrate = Migrate()
+mail = Mail()

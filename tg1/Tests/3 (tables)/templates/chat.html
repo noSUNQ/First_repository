@@ -12,36 +12,44 @@
         <form id="msg_form">
             <label for="media">&#128206</label>
             <input id="media" accept="image/*,video/*" name="media" style="display: none;" type="file">
-            <input id="text" name="text" placeholder="Сообщение" type="text" autocomplete="off">
+            <!--<input id="text" name="text" placeholder="Сообщение" type="text" autocomplete="off">-->
             <textarea id="text" name="text" placeholder="Сообщение"></textarea>
             <input type="hidden" name="chat_id" value="{{ chat.id }}">
+            <button type="submit">Отправить</button>
         </form>
-        <div class="msgs">
-            {{ for msg in msgs }}
+        <ul class="msgs">
+            {% for msg in msgs %}
                 <li>
-
+                    {{ msg.text }} ({{ msg.date.strftime('%H:%M') }})
                 </li>
-            {{ endfor }}
-        </div>
+            {% endfor %}
+        </ul>
     </body>
     <script>
         const form = document.getElementById('msg_form');
         const text = document.getElementById('text');
+        const media = document.getElementById('media');
+        const msgsList = document.querySelector('.msgs');
 
-        msg_form.addEventListener('submit', async (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            msg_text = text.value.trim();
-            const formData = new FormData(form)
-
+            const msg_text = text.value.trim();
             if (!msg_text) return;
 
+            const formData = new FormData(form)
+
             try {
-                const res = await fetch("/send_msg", {
+                const res = await fetch("/add_msg", {
                     method: 'POST',
                     body: formData
                 });
                 if (res.ok) {
+                    const data = await res.json();
+                    const li = document.createElement('li');
+                    li.textContent = `${data.text} (новое)`;
+                    msgsList.appendChild(li);
+
                     text.value = '';
                     document.getElementById('media').value = '';
                 }

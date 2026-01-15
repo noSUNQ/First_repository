@@ -163,8 +163,8 @@ def add_message():
         db.session.rollback()
         return jsonify({"status": "error", "error": str(e)}), 400
     
-@app.post("/add_msg1")
-def add_msg1():
+@app.post("/send_msg")
+def send_msg():
     data = request.json()
     user_id = session.get("id")
     chat_id = data.get("chat_id")
@@ -186,12 +186,21 @@ def add_msg1():
     
 @app.post("/add_msg")
 def add_msg():
-    chat_id = request.form.get("chat_id")
-    msg_text = request.form.get("text", "").strip()
+    chat_id = request.form.get("chat_id", type=int)
+    text = request.form.get("text", "").strip()
 
-    if not msg_text:
+    if not chat_id or not text:
         return jsonify({"error": "Пустое сообщение"}), 400
     
+    chat = Chats.query.get(chat_id)
+    if not chat:
+        return jsonify({"error": "Чат не найден"}), 404
+    
+    msg = Messages(chat_id=chat_id, text=text)
+    db.session.add(msg)
+    db.session.commit()
+
+    return jsonify({"id": msg.id, "text": msg.text})
 
 if __name__ == "__main__":
     app.run(port=5000, debug=True)

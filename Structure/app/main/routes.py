@@ -1,4 +1,3 @@
-# project/app/main/reotes.py
 from . import bp
 from flask import render_template
 
