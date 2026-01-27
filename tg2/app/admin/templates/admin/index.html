@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <title>Админ панель</title>
+    </head>
+    <body>
+        <h1>Админ панель</h1>
+        <button>Главная</button>
+        <button id='btnUsers'>Пользователи</button>
+    </body>
+    <script>
+        document.getElementById('btnUsers').addEventListener('click', () => {
+            window.location.href = '/admin/users'
+        })
+    </script>
+</html>

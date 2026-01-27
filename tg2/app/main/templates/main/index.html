@@ -1,10 +1,27 @@
-{% extends 'main/layout.html' %}
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Главная</title>
+    </head>
+    <body>
+        <h1>Главная страница</h1>
+        <button id="btnQuestions">Журнал вопросов</button>
+        <button id="btnLogout">Выйти</button>
+        {% if is_admin %}
+            <!-- <a href="{{ url_for('admin.index') }}">Админ-панель</a> -->
+            <button type="button" onclick="window.location.href='{{ url_for('admin.index') }}'">Админ-панель</button>
+        {% endif %}
+    </body>
+    <script>
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            fetch('/auth/logout', {
+                method: 'POST'
+            });
+            window.location.reload();
+        })
 
-{% block title %}Главная страница{% endblock %}
-
-{% block content %}
-{{ super() }}
-
-
-
-{% endblock %}
+        document.getElementById('btnQuestions').addEventListener('click', () => {
+            window.location.href = '/questions/'
+        })
+    </script>
+</html>

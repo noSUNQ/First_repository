@@ -1,4 +1,8 @@
 # project/app/models/__init__.py
-from app.models import User, Chat
-#from .user import User
-#from .chat import Chat
+
+from .user import User
+from .chat import Chat
+from .message import Message
+from .messageread import MessageRead
+
+__all__ = ["User", "Chat", "Message", "MessageRead"]

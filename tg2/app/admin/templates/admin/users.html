@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link href="{{ url_for('admin.static', filename='admin/css/styles.css') }}" rel="stylesheet" />
+        <title>Админ-панель: Пользователи</title>
+    </head>
+    
+    <body>
+        <a href="{{ url_for('main.index') }}" class="btn-primary">Главная</a>
+        <h1>Пользователи</h1>
+
+        {% for user in users %}
+        <div id="user-{{ user.id }}" 
+             class="user-row"
+             data-user-id="{{ user.id }}"
+             data-username="{{ user.username }}"
+             data-role="{{ user.role }}">
+            <strong>ID: {{ user.id }}</strong> |
+            <span class="username">{{ user.username }}</span> |
+            <span class="role">{{ user.role }}</span> |
+            <span class="email">{{ user.email }}</span>
+        </div>
+        {% endfor %}
+
+        <div id="userModal" class="modal">
+            <div class="modal-content">
+                <h3>Редактровать пользователя</h3>
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId" name="user_id">
+
+                    <div class="form-group">
+                        <label>Username:</label>
+                        <input type="text" id="editUsername" name="username">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Role:</label>
+                        <select id="editRole" name="role">
+                            <option value="user">User</option>
+                            <option value="employee">Employee</option>
+                            <option value="admin">Admin</option>
+                            <option value="engineer">Engineer</option>
+                        </select>                                
+                    </div>
+
+                    <div class="modal-buttons">
+                        <button type="button" class="btn-secondary" onclick="closeModal()">Отмена</button>
+                        <button type="submit" class="btn-primary">Сохранить</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script>
+            let currentUserId = null;
+
+            function openUserModal(userId, username, role) {
+                currentUserId = userId;
+                document.getElementById('editUserId').value = userId;
+                document.getElementById('editUsername').value = username;
+                document.getElementById('editRole').value = role;
+                document.getElementById('userModal').style.display = 'flex';
+            }
+
+            function closeModal() {
+                document.getElementById('userModal').style.display = 'none';
+            }
+
+            document.getElementById('userModal').addEventListener('click', function(e) {
+                if (e.target === this) closeModal();
+            });
+
+            document.getElementById('editUserForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+
+                fetch('/admin/users', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        closeModal();
+                        updateUserDisplay(currentUserId, data.username, data.role);
+                        showMessage('Сохранено', 'green');
+                    } else {
+                        showMessage('Ошибка: '+ data.message, 'red');
+                    }
+                })
+                .catch(() => showMessage('Ошибка сети', 'red'));
+            });
+
+            function updateUserDisplay(userId, username, role) {
+                const row = document.getElementById('user-' + userId);
+                row.querySelector('.username').textContent = username;
+                row.querySelector('.role').textContent = role;
+            }
+
+            function showMessage(text, color) {
+                const msg = document.createElement('div');
+                msg.textContent = text;
+                msg.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    padding: 15px;
+                    background: ${color === 'green' ? '#d4edda' : '#f8d7da'};
+                    color: ${color};
+                    border-radius: 8px;
+                    z-index: 11;
+                    font-weight: bold;
+                `;
+                document.body.appendChild(msg);
+                setTimeout(() => msg.remove(), 3000);
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                document.addEventListener('click', function(e) {
+                    const row = e.target.closest('.user-row');
+                    if (row) {
+                        const userId = row.dataset.userId;
+                        const username = row.dataset.username;
+                        const role = row.dataset.role;
+                        openUserModal(userId, username, role);
+                    }
+                });
+            });
+        </script>
+    </body>        
+</html>

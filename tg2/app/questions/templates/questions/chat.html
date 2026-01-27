@@ -1,0 +1,45 @@
+<!-- project/app/questions/templates/questions/chat.html -->
+
+{% extends "layout.html" %}
+
+{% block title %}Чат{% endblock %}
+
+{% block head %}
+    <link href="{{ url_for('questions.static', filename='questions/css/styles.css') }}" rel="stylesheet" />
+    <script src="{{ url_for('statc', filename='js/scripts.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+
+    <div>
+        <a href="{{ url_for('questions.index') }}">
+            <button type="button">Назад</button>
+        </a>
+        
+        <span>{{ chat.id }}. {{ chat.name or 'Без названия' }}</span>
+        <span>{{ chat.status }}</span>
+    </div>
+
+    {% for message in messages %}
+
+        <div>
+            <span>{{ message.user.username }}</span>
+            <span>{{ message.text }}</span>
+            <span>{{ message.created_at.strftime('%H:%M %d.%m.%y') }}</span>
+            <span>{{ message.is_read }}</span>      <!-- Отправленно / прочитано или  ... / ✔ / ✔✔ -->
+        </div>
+
+    {% else %}
+
+    <p>Сообщений пока нет</p>
+    {% endfor %}
+
+    <form>
+        <label for="media">&#128206</label>
+        <input id="media" name="media" accept="image/*,video/*" style="display: none;" type="file">
+        <textarea id="" name="" type="text" placeholder="Сообщение"></textarea>
+        <input type="hidden" name="chat_id" value="{{ chat.id }}">
+        <button type="submit">Отправить</button>
+    </form>
+
+{% endblock %}
