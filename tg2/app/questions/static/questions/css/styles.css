@@ -1,3 +1,73 @@
+body {
+    min-height: 100vh;
+}
+
 .modal {
     display: none;
+}
+
+div:first-child {
+    background-color: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgda(0,0,0,0.1);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+button {
+    background-color: #667eea;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.2s;
+}
+
+button:hover {
+    background: #5a67d8;
+    transform: translateY(-1px);
+}
+
+/* Сообщения */
+div:not(:first-child):not(form) {
+    background-color: white;
+    margin: 10px 0;
+    padding: 15px 20px;
+    border-radius: 12px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+    display: flex;
+    gap: 15px;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+form {
+    background-color: white;
+    padding: 25px;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+textarea {
+    flex: 1;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    padding: 15px;
+    font-size: 16px;
+    resize: vertical;
+    min-height: 10px;
+    max-height: 200px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+textarea:focus {
+    border-color: #667eea;
 }

@@ -53,18 +53,18 @@ def chat(chat_id):
     chat = Chat.query.filter_by(id=chat_id).first()
     messages = Message.query.filter_by(chat_id=chat_id).all()
 
-    return render_template("chat.html", chat=chat, messages=messages)
+    return render_template("questions/chat.html", chat=chat, messages=messages)
 
-@bp.post("/send_message")
-def send_message():
-    data = request.form.get("")
-    text = data.get("text", "").strip()
-    media = data.get("media")
-    chat_id = data.get("chat_id")
+@bp.post("/add_message")
+def add_message():
+
+    text = request.form.get("text", "").strip()
+    media = request.form.get("media") if request.files else None
+    chat_id = request.form.get("chat_id")
     user_id = session.get("user_id")
 
-    chat = Chat.query.filter_by(id=chat_id).first()
-    if not chat_id in chat:
+    chat = Chat.query.get(chat_id)
+    if not chat:
         return jsonify({"status": "error", "msg": "Чат не найден"}), 400
     
     user = User.query.filter_by(id=user_id).first()
@@ -73,7 +73,7 @@ def send_message():
     
     if text:
         try:
-            msg_type = "text"
+            #msg_type = "text"
             msg = Message(type="text", text=text, chat_id=chat_id, user_id=user_id)
             db.session.add(msg)
             db.session.commit()
@@ -81,7 +81,7 @@ def send_message():
             db.session.rollback()
             return jsonify({"status": "error", "msg": str(e)}), 400
         
-
+    '''
     if media:
         for file in media:
             # Определяем тип? type
@@ -94,5 +94,27 @@ def send_message():
             except Exception as e:
                 db.session.rollback()
                 return jsonify({"status": "error", "msg": str(e)}), 400
-
+    '''
     return jsonify({"status": "success"})
+
+@bp.post("/chat/<int:chat_id>/messages")
+def get_messages(chat_id):
+    user_id = session.get("user_id")
+    if not user_id:
+        return jsonify({"status": "error", "msg": "Не авторизован"}), 401
+    
+    messages = Message.query.filter_by(chat_id=chat_id)\
+                            .order_by(Message.created_at.desc())\
+                            .limit(50).all()
+    
+    data = []
+    for msg in reversed(messages):
+        data.append({
+            "id": msg.id,
+            "text": msg.text,
+            "user": {"username": msg.user.username},
+            "created_at": msg.created_at.strftime('%H:%M %d.%m.%y'),
+            "is_read": msg.is_read
+        })
+    
+    return jsonify({"messages": data})

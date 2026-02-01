@@ -6,7 +6,7 @@
 
 {% block head %}
     <link href="{{ url_for('questions.static', filename='questions/css/styles.css') }}" rel="stylesheet" />
-    <script src="{{ url_for('statc', filename='js/scripts.js') }}"></script>
+    <script src="{{ url_for('static', filename='js/scripts.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -20,26 +20,79 @@
         <span>{{ chat.status }}</span>
     </div>
 
-    {% for message in messages %}
-
-        <div>
+    <div class="chat_messages">
+        {% for message in messages %}
+        <div class="message {{ 'own' if message.user_id == current_user.id }}">
             <span>{{ message.user.username }}</span>
             <span>{{ message.text }}</span>
             <span>{{ message.created_at.strftime('%H:%M %d.%m.%y') }}</span>
             <span>{{ message.is_read }}</span>      <!-- Отправленно / прочитано или  ... / ✔ / ✔✔ -->
         </div>
-
-    {% else %}
+        {% else %}
+    </div>
 
     <p>Сообщений пока нет</p>
     {% endfor %}
 
-    <form>
-        <label for="media">&#128206</label>
-        <input id="media" name="media" accept="image/*,video/*" style="display: none;" type="file">
-        <textarea id="" name="" type="text" placeholder="Сообщение"></textarea>
-        <input type="hidden" name="chat_id" value="{{ chat.id }}">
-        <button type="submit">Отправить</button>
+    <form name="formMsg" enctype="multipart/form-data">
+        <input name="chat_id" value="{{ chat.id }}" type="hidden">
+        <div class="input_group">
+            <label for="media">&#128206</label>
+            <input id="media" name="media" accept="image/*,video/*" style="display: none;" type="file">
+            <textarea name="text" placeholder="Сообщение" rows="1"></textarea>
+            <input type="hidden" name="chat_id" value="{{ chat.id }}">
+            <button type="submit">Отправить</button>
+        </div>
     </form>
 
+    <script>
+
+        document.getElementById('formMsg').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+
+            try {
+                const res = await fetch('/questions/add_message', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.jso();
+                
+                if (data.status === 'success') {
+                    e.target.reset();
+                    loadMessages();
+                } else {
+                    showMessage(data.msg, 'red');
+                }
+            } catch (err) {
+                showMessage('Ошибка сети', 'red')
+            }
+        });
+
+        setInterval(loadMessages, 3000);
+
+        async function loadMessages() {
+            try {
+                const res = await fetch(`/questions/chat/{{ chat.id }}/messages`);
+                if (!res.ok) throw new Error('Ошибка загрузки');
+
+                const data = await res.json();
+                const messagesContainer = document.querySelector('.chat_messages');
+
+                messagesContainer.innerHTML = data .messages.map(msg => `
+                    <div class="message">
+                        <span class="username">${msg.user.username}</span>
+                        <span class="time">${msg.created_at}</span>
+                        <div class="text">${msg.text}</span>
+                    </div>
+                `).join('');
+
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            } catch (error) {
+                console.error('Ошибка загрузки сообщений:', error);
+            }
+        }
+
+
+    </script>
 {% endblock %}

@@ -15,7 +15,7 @@
         <h1>Журнал вопросов</h1>
 
         {% for chat in chats %}
-        <div id="chat-{{ chat.id }}" class="row">
+        <div id="chat-{{ chat.id }}" class="row" data-chat-id="{{ chat.id }}">
             <strong>ID: {{ chat.id }}</strong> |
             <span class="title">{{ chat.title }}</span>
         </div>
@@ -29,10 +29,10 @@
             <div class="modal-content">
                 <h3>Новый вопрос</h3>
                 <form id="addChatForm">
-                    <input id="" name="" type="hidden">
+                    <!--<input id="hiddenChatId" name="chatId" type="hidden" value="">-->
                     <div class="form-group">
                         <label>Название:</label>
-                        <input id="chatName" name="chatName" type="text">
+                        <input id="chatName" name="chatName" type="text" required>
                     </div>
                     <div class="modal-buttons">
                         <button type="submit">Отправить</button>
@@ -71,12 +71,22 @@
             .then(data => {
                 if (data.status === 'success') {
                     closeModal();
-                    showMessage('Сохранено', 'green');
+                    /*showMessage('Сохранено', 'green');*/
+                    location.reload();
                 } else {
                     showMessage('Ошибка: ' + data.msg, 'red');
                 }
             })
             .catch(() => showMessage('Ошибка сети', 'red'));
+        });
+
+        
+        document.addEventListener('click', function(e) {
+            const row = e.target.closest('.row');
+            if (row) {
+                const chatId = row.dataset.chatId;
+                window.location.href = `/questions/chat/${chatId}`;
+            }
         });
 
 

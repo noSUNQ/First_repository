@@ -1,2 +1,2 @@
 # First_repository
-12.2025 -
+source venv/bin/activate
